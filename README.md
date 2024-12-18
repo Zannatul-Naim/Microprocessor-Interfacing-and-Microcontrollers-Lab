@@ -1,7 +1,7 @@
 # Microprocessor-Interfacing-and-Microcontrollers-Lab
 CSE 4142 Microprocessor Interfacing and Microcontrollers Lab
 
-# Problem: 1
+# Problem-1: Simple memory operation
 ## (a). Load the Register R0 to R4 with roll numbers of team leaders of five teams. Move the roll numbers stored in R0~R4 to some SRAM area, then move all roll numbers to another area in SRAM
 
 ```asm
