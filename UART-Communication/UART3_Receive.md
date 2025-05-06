@@ -24,7 +24,7 @@ This example demonstrates how to **receive characters** over **USART3** on the S
 ## 🧾 Code
 
 ```c
-#include "stm32f10x.h"  // CMSIS header for STM32F1 series
+#include "stm32f1xx.h"  // CMSIS header for STM32F1 series
 
 int main(void)
 {
