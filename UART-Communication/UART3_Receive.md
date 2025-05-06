@@ -1,76 +1,72 @@
-# ✅ Code Overview
-This program:
+# 📥 USART3 Receiver - STM32F103C8T6 (Register Level)
 
-- Initializes USART3.
-- Configures PB10 as TX and PB11 as RX.
-- Receives a character from the serial input at 9600 baud and stores it.
+This example demonstrates how to **receive characters** over **USART3** on the STM32F103 microcontroller. The code is written using **bare-metal register-level programming**.
 
-## 📘 Full Code with Documentation
+---
+
+## 📌 Purpose
+
+- Configure **USART3** (PB10 as TX and PB11 as RX).
+- Continuously receive characters sent over serial at **9600 baud**.
+- Extract the received character from the **Data Register**.
+
+---
+
+## 🧩 Hardware Connections
+
+| Peripheral | Pin   | Function     |
+|------------|-------|--------------|
+| USART3_TX  | PB10  | TX (Output)  |
+| USART3_RX  | PB11  | RX (Input)   |
+
+---
+
+## 🧾 Code
 
 ```c
-#include "stm32f10x.h"  // Device header file for STM32F10x series
+#include "stm32f10x.h"  // CMSIS header for STM32F1 series
 
 int main(void)
 {
-    /* -------- 1. Enable Peripheral Clocks -------- */
+    // 1. Enable Alternate Function IO and GPIOB clocks (bits 0 and 3 in APB2ENR)
+    RCC->APB2ENR |= (1 << 0) | (1 << 3); // Enable AFIO + GPIOB
 
-    // Enable GPIOB (bit 3) and AFIO (bit 0) clocks
-    RCC->APB2ENR |= 0x09;  // 0b00001001 = 0x09
+    // 2. Enable USART3 clock (bit 18 in APB1ENR)
+    RCC->APB1ENR |= (1 << 18);
 
-    // Enable USART3 clock on APB1 (bit 18)
-    RCC->APB1ENR |= (1 << 18); // 0x40000
+    // 3. Clear PB8–PB15 (Control Register High)
+    GPIOB->CRH &= ~(0xFFFF);
 
-    /* -------- 2. Configure GPIO Pins PB10 (TX) and PB11 (RX) -------- */
+    // 4. Configure PB10 as AF Push-Pull output (TX), and PB11 as Floating Input (RX)
+    GPIOB->CRH |= (0xB << 8);  // PB10: Output 50 MHz, AF Push-Pull
+    GPIOB->CRH |= (0x8 << 12); // PB11: Floating Input
 
-    // Clear PB8 to PB15 configuration (16 bits in CRH)
-    GPIOB->CRH &= ~(0xFFFF); // Clear all bits
-
-    // Configure PB10 (USART3 TX) as AF Push-Pull Output @ 50 MHz
-    // MODE10 = 0b11, CNF10 = 0b10 => 0b1011 = 0xB => bits [11:8]
-    GPIOB->CRH |= (0xB << 8); // Sets bits 11:8
-
-    // Configure PB11 (USART3 RX) as Floating Input
-    // MODE11 = 0b00, CNF11 = 0b01 => 0b1000 = 0x8 => bits [15:12]
-    GPIOB->CRH |= (0x8 << 12);
-
-    /* -------- 3. Configure USART3 -------- */
-
-    // Setup baud rate = 9600, with APB1 = 36 MHz
+    // 5. Set baud rate: BRR = Fclk / baud
     uint32_t system_clock = 36000000;
     uint32_t baud_rate = 9600;
     USART3->BRR = (system_clock + (baud_rate / 2)) / baud_rate;
 
-    // Enable Transmitter (bit 3) and Receiver (bit 2)
-    USART3->CR1 |= (1 << 3); // TE: Transmit enable
-    USART3->CR1 |= (1 << 2); // RE: Receive enable
+    // 6. Enable transmitter (TE) and receiver (RE)
+    USART3->CR1 |= (1 << 3); // TE
+    USART3->CR1 |= (1 << 2); // RE
 
-    // Set word length to 9 bits (bit 12 = 1)
+    // 7. Set word length to 9 bits (optional)
     USART3->CR1 |= (1 << 12);
 
-    // Enable USART (bit 13 = UE)
+    // 8. Enable USART3
     USART3->CR1 |= (1 << 13);
 
-    /* -------- 4. Main Loop: Receive Characters -------- */
-
-    while (1) {
+    while (1)
+    {
         char chat;
 
-        // Wait until a character is received (bit 5, RXNE = Read Data Register Not Empty)
-        while (!(USART3->SR & (1 << 5))) {
-            // Busy wait for character
+        // Wait until reception is complete (RXNE = 1)
+        while (!(USART3->SR & (1 << 6)))
+        {
+            // Wait for received data
         }
 
-        // Read the received data (this clears RXNE automatically)
+        // Read received character from data register
         chat = USART3->DR;
-
-        // Optional: Store received char as null-terminated string
-        char message[2];
-        message[0] = chat;
-        message[1] = '\0';
-
-        // Display message if a display or debug interface is available
-        // display(message); // Uncomment and implement if needed
     }
 }
-```
-

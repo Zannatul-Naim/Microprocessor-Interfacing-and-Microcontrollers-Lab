@@ -6,6 +6,8 @@ This repository contains detailed, fully documented examples for UART communicat
 
 | UART | Description         | Link                      |
 |-------|---------------------|---------------------------|
+| UART1 (Send) | Send character via UART1 (Tx) | [UART1_Send.md](./UART-Communication/UART1_Receive.md) |
+| UART1 (Receive) | Receive character via UART1 (Rx) | [UART1_Receive.md](./UART-Communication/UART1_Receive.md) |
 | UART3 (Send) | Send character via UART3 (Tx) | [UART3_Send.md](./UART-Communication/UART3_Send.md) |
 | UART3 (Receive) | Receive character via UART3 (Rx) | [UART3_Receive.md](./UART-Communication/UART3_Receive.md) |
 
